@@ -1,7 +1,7 @@
 # This plugin utilizes MiniMessage for messages.
 # For more information, visit https://docs.adventure.kyori.net/minimessage.html
 
-file-version: 1
+file-version: 2
 
 # General messages
 general:
@@ -25,7 +25,7 @@ commands:
       error: "<gray>An <red>error occurred <gray>while reloading S-PlayerWarps! Check the console for details."
   # Messages for the /playerwarp command
   playerwarp:
-    usage: "<gray>Please use <red>/playerwarp <create/teleport> <identifier><gray>!"
+    usage: "<gray>Please use <red>/playerwarp <create/teleport/delete/edit> <identifier><gray>!"
     create:
       success: "<gray>The player warp <white>%warp% <gray>has <green>successfully been created<gray>!"
       alreadyExists: "<gray>A player warp with the identifier <white>%warp% <red>already exists<gray>!"
@@ -37,6 +37,17 @@ commands:
       success: "<gray>You have been teleported to player warp <white>%warp%<gray>!"
       notFound: "<gray>The player warp <white>%warp% <gray>could <red>not be found<gray>!"
       canceled: "<gray>Teleportation <red>canceled<gray> due to movement!"
+    delete:
+      success: "<gray>The player warp <white>%warp% <gray>has been <green>successfully deleted<gray>!"
+      notFound: "<gray>The player warp <white>%warp% <gray>could <red>not be found<gray>!"
+      notOwner: "<gray>You <red>do not own <gray>the player warp <white>%warp%<gray>!"
+    edit:
+      notFound: "<gray>The player warp <white>%warp% <gray>could <red>not be found<gray>!"
+      notOwner: "<gray>You <red>do not own <gray>the player warp <white>%warp%<gray>!"
+      displayNameSuccess: "<gray>The display name of player warp <white>%warp% <gray>has been changed to <white>%displayname%<reset><gray>!"
+      displayNameTooLong: "<gray>The display name is <red>too long<gray>! Maximum length is <red>%max% <gray>characters."
+      iconSuccess: "<gray>The icon of player warp <white>%warp% <gray>has been changed to <white>%material%<gray>!"
+      invalidMaterial: "<gray>The material <white>%material% <gray>is <red>invalid<gray>! Please use a valid Minecraft material name."
 
 # Dialog texts
 dialogs:

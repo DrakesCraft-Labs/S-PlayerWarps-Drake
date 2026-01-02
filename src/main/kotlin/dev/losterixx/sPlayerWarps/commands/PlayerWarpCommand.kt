@@ -7,7 +7,6 @@ import dev.losterixx.sPlayerWarps.Main
 import dev.losterixx.sPlayerWarps.other.ui.GuiManager
 import dev.losterixx.sPlayerWarps.other.PWManager
 import dev.losterixx.sPlayerWarps.other.PlayerWarp
-import dev.triumphteam.gui.guis.Gui
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.Commands
 import org.bukkit.entity.Player
@@ -30,7 +29,7 @@ object PlayerWarpCommand : Listener {
 
     private val pendingTeleports = mutableMapOf<UUID, Pair<BukkitTask, Location>>()
 
-    private fun normalizeSoundKey(soundName: String): String = soundName.lowercase() //.replace('_', '.')
+    private fun normalizeSoundKey(soundName: String): String = soundName.lowercase()
 
     fun get(): LiteralArgumentBuilder<CommandSourceStack> {
         return Commands.literal("playerwarp")
@@ -124,7 +123,7 @@ object PlayerWarpCommand : Listener {
                     .suggests { ctx, builder ->
                         val input = try {
                             StringArgumentType.getString(ctx, "identifier").lowercase()
-                        } catch (e: IllegalArgumentException) { "" }
+                        } catch (_: IllegalArgumentException) { "" }
 
                         CompletableFuture.supplyAsync {
                             PWManager.getAllWarps()
@@ -242,6 +241,188 @@ object PlayerWarpCommand : Listener {
 
                     return@executes 1
                 }
+            )
+            .then(Commands.literal("delete")
+                .requires { ctx -> ctx.sender.hasPermission("s-playerwarps.command.playerwarp.delete") }
+                .then(Commands.argument("identifier", StringArgumentType.string())
+                    .suggests { ctx, builder ->
+                        val input = try {
+                            StringArgumentType.getString(ctx, "identifier").lowercase()
+                        } catch (_: IllegalArgumentException) { "" }
+
+                        val sender = ctx.source.sender as? Player
+
+                        CompletableFuture.supplyAsync {
+                            if (sender != null) {
+                                PWManager.getPlayerWarpsByOwner(sender.uniqueId)
+                                    .map { it.identifier }
+                                    .filter { it.lowercase().startsWith(input) || it.lowercase() == input || input.isEmpty() }
+                            } else {
+                                emptyList()
+                            }
+                        }.thenApply { filteredWarps ->
+                            filteredWarps.forEach { builder.suggest(it) }
+                            builder.build()
+                        }
+                    }
+                    .executes { ctx ->
+                        val sender = ctx.source.sender as Player
+                        val identifier = StringArgumentType.getString(ctx, "identifier")
+
+                        val identifierRegex = Regex(config.getString("playerwarps.identifier.regex", "^[A-Za-z0-9_]+$"))
+                        val minLen = config.getInt("playerwarps.identifier.minLength", 4)
+                        val maxLen = config.getInt("playerwarps.identifier.maxLength", 16)
+
+                        if (!identifierRegex.matches(identifier) || identifier.length !in minLen..maxLen) {
+                            sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.delete.notFound")
+                                .replace("%warp%", identifier)))
+                            return@executes 1
+                        }
+
+                        val playerWarp = PWManager.getPlayerWarp(identifier)
+
+                        if (playerWarp == null) {
+                            sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.delete.notFound")
+                                .replace("%warp%", identifier)))
+                            return@executes 1
+                        }
+
+                        if (playerWarp.owner != sender.uniqueId) {
+                            sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.delete.notOwner")
+                                .replace("%warp%", identifier)))
+                            return@executes 1
+                        }
+
+                        PWManager.removePlayerWarp(playerWarp)
+                        sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.delete.success")
+                            .replace("%warp%", identifier)))
+
+                        return@executes 1
+                    }
+                )
+            )
+            .then(Commands.literal("edit")
+                .requires { ctx -> ctx.sender.hasPermission("s-playerwarps.command.playerwarp.edit") }
+                .then(Commands.argument("identifier", StringArgumentType.string())
+                    .suggests { ctx, builder ->
+                        val input = try {
+                            StringArgumentType.getString(ctx, "identifier").lowercase()
+                        } catch (_: IllegalArgumentException) { "" }
+
+                        val sender = ctx.source.sender as? Player
+
+                        CompletableFuture.supplyAsync {
+                            if (sender != null) {
+                                PWManager.getPlayerWarpsByOwner(sender.uniqueId)
+                                    .map { it.identifier }
+                                    .filter { it.lowercase().startsWith(input) || it.lowercase() == input || input.isEmpty() }
+                            } else {
+                                emptyList()
+                            }
+                        }.thenApply { filteredWarps ->
+                            filteredWarps.forEach { builder.suggest(it) }
+                            builder.build()
+                        }
+                    }
+                    .then(Commands.literal("displayname")
+                        .then(Commands.argument("value", StringArgumentType.greedyString())
+                            .executes { ctx ->
+                                val sender = ctx.source.sender as Player
+                                val identifier = StringArgumentType.getString(ctx, "identifier")
+                                val displayName = StringArgumentType.getString(ctx, "value")
+
+                                val identifierRegex = Regex(config.getString("playerwarps.identifier.regex", "^[A-Za-z0-9_]+$"))
+                                val minLen = config.getInt("playerwarps.identifier.minLength", 4)
+                                val maxLen = config.getInt("playerwarps.identifier.maxLength", 16)
+
+                                if (!identifierRegex.matches(identifier) || identifier.length !in minLen..maxLen) {
+                                    sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.notFound")
+                                        .replace("%warp%", identifier)))
+                                    return@executes 1
+                                }
+
+                                val playerWarp = PWManager.getPlayerWarp(identifier)
+
+                                if (playerWarp == null) {
+                                    sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.notFound")
+                                        .replace("%warp%", identifier)))
+                                    return@executes 1
+                                }
+
+                                if (playerWarp.owner != sender.uniqueId) {
+                                    sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.notOwner")
+                                        .replace("%warp%", identifier)))
+                                    return@executes 1
+                                }
+
+                                val displayNameMaxLen = config.getInt("playerwarps.displayName.maxLength", 32)
+                                if (displayName.length > displayNameMaxLen) {
+                                    sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.displayNameTooLong")
+                                        .replace("%warp%", identifier)
+                                        .replace("%max%", displayNameMaxLen.toString())))
+                                    return@executes 1
+                                }
+
+                                playerWarp.displayName = displayName
+                                sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.displayNameSuccess")
+                                    .replace("%warp%", identifier)
+                                    .replace("%displayname%", displayName)))
+
+                                return@executes 1
+                            }
+                        )
+                    )
+                    .then(Commands.literal("icon")
+                        .then(Commands.argument("value", StringArgumentType.greedyString())
+                            .executes { ctx ->
+                                val sender = ctx.source.sender as Player
+                                val identifier = StringArgumentType.getString(ctx, "identifier")
+                                val materialName = StringArgumentType.getString(ctx, "value")
+
+                                val identifierRegex = Regex(config.getString("playerwarps.identifier.regex", "^[A-Za-z0-9_]+$"))
+                                val minLen = config.getInt("playerwarps.identifier.minLength", 4)
+                                val maxLen = config.getInt("playerwarps.identifier.maxLength", 16)
+
+                                if (!identifierRegex.matches(identifier) || identifier.length !in minLen..maxLen) {
+                                    sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.notFound")
+                                        .replace("%warp%", identifier)))
+                                    return@executes 1
+                                }
+
+                                val playerWarp = PWManager.getPlayerWarp(identifier)
+
+                                if (playerWarp == null) {
+                                    sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.notFound")
+                                        .replace("%warp%", identifier)))
+                                    return@executes 1
+                                }
+
+                                if (playerWarp.owner != sender.uniqueId) {
+                                    sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.notOwner")
+                                        .replace("%warp%", identifier)))
+                                    return@executes 1
+                                }
+
+                                val normalizedMaterialName = materialName.uppercase().replace(" ", "_")
+                                val material = Material.getMaterial(normalizedMaterialName)
+
+                                if (material == null || !material.isItem) {
+                                    sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.invalidMaterial")
+                                        .replace("%warp%", identifier)
+                                        .replace("%material%", materialName)))
+                                    return@executes 1
+                                }
+
+                                playerWarp.material = material
+                                sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.iconSuccess")
+                                    .replace("%warp%", identifier)
+                                    .replace("%material%", material.name)))
+
+                                return@executes 1
+                            }
+                        )
+                    )
+                )
             )
     }
 

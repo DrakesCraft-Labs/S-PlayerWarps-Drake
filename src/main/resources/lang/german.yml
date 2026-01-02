@@ -1,7 +1,7 @@
 # This plugin utilizes MiniMessage for messages.
 # For more information, visit https://docs.adventure.kyori.net/minimessage.html
 
-file-version: 1
+file-version: 2
 
 # Generelle Nachrichten
 general:
@@ -24,7 +24,7 @@ commands:
       success: "<gray>S-PlayerWarps wurde <green>erfolgreich neugeladen<gray>! <dark_gray>(%time%ms)"
       error: "<red>Fehler beim Neuladen <gray>von S-PlayerWarps! Überprüfe die Konsole für Details."
   playerwarp:
-    usage: "<gray>Bitte nutze <red>/playerwarp <create/teleport> <Identifier><gray>!"
+    usage: "<gray>Bitte nutze <red>/playerwarp <create/teleport/delete/edit> <Identifier><gray>!"
     create:
       success: "<gray>Der Spieler-Warp <white>%warp% <gray>wurde <green>erfolgreich erstellt<gray>!"
       alreadyExists: "<gray>Ein Spieler-Warp mit der ID <white>%warp% <red>existiert bereits<gray>!"
@@ -36,6 +36,17 @@ commands:
       success: "<gray>Du wurdest zum Spieler-Warp <white>%warp% <gray>teleportiert!"
       notFound: "<gray>Der Spieler-Warp <white>%warp% <gray>konnte <red>nicht gefunden<gray> werden!"
       canceled: "<gray>Die Teleportation wurde aufgrund von Bewegung <red>abgebrochen<gray>!"
+    delete:
+      success: "<gray>Der Spieler-Warp <white>%warp% <gray>wurde <green>erfolgreich gelöscht<gray>!"
+      notFound: "<gray>Der Spieler-Warp <white>%warp% <gray>konnte <red>nicht gefunden<gray> werden!"
+      notOwner: "<gray>Du <red>besitzt nicht <gray>den Spieler-Warp <white>%warp%<gray>!"
+    edit:
+      notFound: "<gray>Der Spieler-Warp <white>%warp% <gray>konnte <red>nicht gefunden<gray> werden!"
+      notOwner: "<gray>Du <red>besitzt nicht <gray>den Spieler-Warp <white>%warp%<gray>!"
+      displayNameSuccess: "<gray>Der Anzeigename des Spieler-Warps <white>%warp% <gray>wurde zu <white>%displayname% <reset><gray>geändert!"
+      displayNameTooLong: "<gray>Der Anzeigename ist <red>zu lang<gray>! Die maximale Länge ist <red>%max% <gray>Zeichen."
+      iconSuccess: "<gray>Das Icon des Spieler-Warps <white>%warp% <gray>wurde zu <white>%material% <gray>geändert!"
+      invalidMaterial: "<gray>Das Material <white>%material% <gray>ist <red>ungültig<gray>! Bitte nutze einen gültigen Minecraft-Material-Namen."
 
 # Dialog texts
 dialogs:

@@ -3,6 +3,7 @@ package dev.losterixx.sPlayerWarps
 import dev.losterixx.sPlayerWarps.commands.PlayerWarpCommand
 import dev.losterixx.sPlayerWarps.listener.UpdateCheckerListener
 import dev.losterixx.sPlayerWarps.other.Cache
+import dev.losterixx.sPlayerWarps.utils.ConfigUpdater
 import dev.losterixx.sapi.SAPI
 import dev.losterixx.sapi.premade.commands.DefaultMainCommand
 import dev.losterixx.sapi.utils.config.ConfigExtras
@@ -38,6 +39,7 @@ class Main : JavaPlugin() {
         ConfigManager.createConfig("ownWarpsMenu", "menus/ownWarpsMenu.yml", "menus")
         ConfigManager.createConfig("editWarpMenu", "menus/editWarpMenu.yml", "menus")
         ConfigExtras.loadLangFiles()
+        ConfigUpdater.updateConfigs()
         logger.info("Loaded ${ConfigManager.getAllConfigs().size} configs!")
 
         // -> Load data
