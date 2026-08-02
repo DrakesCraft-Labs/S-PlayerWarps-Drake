@@ -29,7 +29,12 @@ object PWManager {
             val displayName = warpSection.getString("displayName")
             val uniqueUses = warpSection.getStringList("uniqueUses", listOf<String>())
             val totalUses = warpSection.getInt("totalUses")
-            val material = Material.getMaterial(warpSection.getString("material")) ?: Material.ENDER_PEARL
+            val configuredMaterial = warpSection.getString("material")
+            val material = Material.getMaterial(configuredMaterial)
+                ?.takeIf { it.isItem }
+                ?: Material.ENDER_PEARL.also {
+                    main.logger.warning("Warp '$key' has invalid icon '$configuredMaterial'; using ENDER_PEARL.")
+                }
 
             val locSection = warpSection.getSection("loc") ?: continue
             val worldName = locSection.getString("world") ?: continue

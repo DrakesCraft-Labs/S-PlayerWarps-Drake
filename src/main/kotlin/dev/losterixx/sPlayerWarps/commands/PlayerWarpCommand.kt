@@ -414,6 +414,8 @@ object PlayerWarpCommand : Listener {
                                 }
 
                                 playerWarp.material = material
+                                // Persist immediately so a restart cannot restore an invalid old icon.
+                                PWManager.saveAllToDisk()
                                 sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.iconSuccess")
                                     .replace("%warp%", identifier)
                                     .replace("%material%", material.name)))
