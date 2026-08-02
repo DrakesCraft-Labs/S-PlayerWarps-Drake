@@ -1,4 +1,10 @@
 # About
+
+> [!NOTE]
+> **Fork de mantenimiento de DrakesCraft-Labs.** Basado en
+> `Losterixx/S-PlayerWarps` para preservar correcciones de iconos inválidos y
+> persistencia de warps en DrakesCraft. El upstream se conserva como referencia;
+> cualquier JAR requiere validación antes de producción.
 S-PlayerWarps is a simple Paper plugin that lets players create personal warps and teleport to them.
 
 ## Features
