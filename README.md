@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/DrakesCraft-Labs/S-PlayerWarps-Drake/main/banner.svg" width="100%" alt="S PLAYER WARPS animated banner" />
+</p>
+
 # About
 
 > [!NOTE]
@@ -31,3 +35,4 @@ GitBook docu: [Link](https://s-projects.gitbook.io/s-projects/s-playerwarps/home
 
 ## Support
 My Discord-Server: [S-Projects](https://discord.gg/gnGsUAwp76)
+
